@@ -45,14 +45,19 @@ A `Justfile` provides shortcuts:
 | `just release` | Workspace release build |
 | `just lint` | Format + clippy (cached) |
 | `just test` | Run workspace tests (cached) |
+| `just test-nextest` | Run with nextest if installed |
 | `just sccache-stats` | Show cache stats |
 | `just sccache-zero` | Reset cache counters |
 | `just full-verify` | fmt + clippy + tests + docs + sccache stats |
+| `just full-local-ci` | Exhaustive local validation (nextest + doxygen) |
 
 VS Code tasks added:
+
 - List is separate for lint satisfaction.
 - `sccache stats`
 - `sccache reset stats`
+- `cargo nextest (if installed)`
+- `full local CI (Just)`
 
 ## Git Pre-Commit Hooks
 
@@ -209,7 +214,26 @@ mdbook build docs
 
 ## CI Considerations
 
-CI can run heavier variants (full test suite, full clippy, deny advisories) while local hooks stay fast. Consider adding a `pre-push` hook with: `cargo test --workspace --all-features` for more exhaustive checks.
+The repository has shifted to a "local-first" philosophy: heavy build, lint, security, and documentation generations occur locally while CI performs only light, fast, structural validation to conserve remote resources and avoid duplicate work.
+
+Current remote workflow (`light-validation`):
+
+- Executes only lightweight pre-commit hooks (formatting, basic hygiene) skipping heavy Rust compilation, tests, docs, and security checks.
+- Uses the `SKIP` environment variable to disable resource-intensive hooks.
+
+Developer responsibilities before pushing:
+
+1. Run `just full-local-ci` (or manually: `just full-verify` plus Doxygen & nextest) to ensure comprehensive quality gates.
+2. Verify security & license state with `cargo deny` (install if missing).
+3. Regenerate docs if changed: `just check-docs` and `just arch-docs`.
+
+Rationale:
+
+- Keeps cloud CI lean (faster PR feedback on style/obvious issues).
+- Encourages earlier local feedback loops (fewer red CI runs for predictable failures).
+- Avoids redundant compilation of large workspaces on every push.
+
+If a downstream consumer requires published nightly docs, re-enable the disabled `nightly-docs` workflow (currently a stub) or run it manually and attach artifacts.
 
 ## Troubleshooting
 
@@ -224,4 +248,4 @@ If Doxygen output seems sparse:
 - Try enabling `EXTRACT_PRIVATE = YES` temporarily (not recommended for publication).
 
 ---
-This document will evolve; contributions welcome.
+This document will evolve; contributions welcome. If you reintroduce heavier CI stages, please update this section to reflect the new remote/local split.

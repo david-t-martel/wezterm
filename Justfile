@@ -19,6 +19,10 @@ clippy:
 test:
     $env:RUSTC_WRAPPER="sccache"; cargo test --workspace --no-fail-fast
 
+test-nextest:
+    # Run tests with nextest if installed; fallback to cargo test
+    if (Get-Command cargo-nextest -ErrorAction SilentlyContinue) { $env:RUSTC_WRAPPER="sccache"; cargo nextest run --workspace } else { Write-Host 'cargo-nextest not installed; using cargo test'; $env:RUSTC_WRAPPER="sccache"; cargo test --workspace --no-fail-fast }
+
 bench:
     cargo bench
 
@@ -37,3 +41,7 @@ sccache-zero:
     sccache --zero-stats
 
 full-verify: fmt clippy test check-docs sccache-stats
+
+full-local-ci: fmt clippy test-nextest check-docs arch-docs sccache-stats
+    # Run an exhaustive local validation approximating old CI heavy checks.
+    # Includes architecture docs (doxygen) and nextest (if present).

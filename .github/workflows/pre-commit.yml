@@ -1,4 +1,4 @@
-name: pre-commit
+name: light-validation
 
 on:
   pull_request:
@@ -7,30 +7,28 @@ on:
     branches: [ main ]
 
 jobs:
-  run-pre-commit:
+  run-light-hooks:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up Python
+      - name: Set up Python (for pre-commit framework only)
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy,rustfmt
-      - name: Install supporting tools
-        run: |
-          pip install pre-commit
-          cargo install cargo-deny || true
-          cargo install mdbook || true
-      - name: Cache pre-commit
+      - name: Install pre-commit (no heavy toolchain installs)
+        run: pip install pre-commit
+      - name: Cache pre-commit envs
         uses: actions/cache@v4
         with:
           path: ~/.cache/pre-commit
           key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
-      - name: Run pre-commit (all files)
-        run: pre-commit run --all-files --show-diff-on-failure
+      - name: Run lightweight hooks only
+        env:
+          # Skip heavy Rust & docs hooks; they are enforced locally via pre-commit and full verify script
+          SKIP: cargo-clippy,cargo-test-changed,cargo-deny,mdbook-build,doxygen-rust,pre-push-clippy-full,pre-push-test-full,pre-push-deny,pre-push-mdbook,pre-push-doxygen
+        run: pre-commit run --all-files --show-diff-on-failure || (echo "Some lightweight hooks failed" && exit 1)
+      - name: Note
+        run: echo "Heavy build, lint, test, docs and security checks run only locally now. See docs/developer-tooling.md"

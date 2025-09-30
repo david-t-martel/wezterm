@@ -108,5 +108,22 @@
       "problemMatcher": [],
       "detail": "Reset sccache statistics counters"
     }
+    ,{
+      "label": "cargo nextest (if installed)",
+      "type": "shell",
+      "command": "pwsh",
+      "args": ["-NoLogo","-Command","if (Get-Command cargo-nextest -ErrorAction SilentlyContinue) { cargo nextest run --workspace } else { echo 'cargo-nextest not installed'; exit 0 }"] ,
+      "problemMatcher": ["$rustc"],
+      "group": "test",
+      "detail": "Run tests with nextest if available"
+    }
+    ,{
+      "label": "full local CI (Just)",
+      "type": "shell",
+      "command": "just",
+      "args": ["full-local-ci"],
+      "problemMatcher": ["$rustc"],
+      "detail": "Run exhaustive local validation approximating heavy CI"
+    }
   ]
 }
