@@ -1,0 +1,112 @@
+{
+  // Common build, test, lint, and bench tasks for the WezTerm workspace.
+  // Invoke via: Terminal > Run Task (or the command palette)
+  "version": "2.0.0",
+  "options": {
+    "env": {
+      // Speed up incremental builds by capping codegen units if desired.
+      "RUSTFLAGS": "-C debuginfo=1"
+    }
+  },
+  "tasks": [
+    {
+      "label": "cargo check (workspace)",
+      "type": "shell",
+      "command": "cargo",
+      "args": ["check", "--workspace", "--all-targets"],
+      "problemMatcher": ["$rustc"],
+      "group": "build"
+    },
+    {
+      "label": "cargo build (dev)",
+      "type": "shell",
+      "command": "cargo",
+      "args": ["build", "--workspace"],
+      "problemMatcher": ["$rustc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "cargo build --release",
+      "type": "shell",
+      "command": "cargo",
+      "args": ["build", "--workspace", "--release"],
+      "problemMatcher": ["$rustc"],
+      "group": "build"
+    },
+    {
+      "label": "cargo clippy (all warnings)",
+      "type": "shell",
+      "command": "cargo",
+      "args": ["clippy", "--workspace", "--all-targets", "--", "-Dwarnings", "-Aclippy::type_complexity"],
+      "problemMatcher": ["$rustc"]
+    },
+    {
+      "label": "cargo test",
+      "type": "shell",
+      "command": "cargo",
+      "args": ["test", "--workspace"],
+      "problemMatcher": ["$rustc"],
+      "group": "test"
+    },
+    {
+      "label": "cargo bench",
+      "type": "shell",
+      "command": "cargo",
+      "args": ["bench"],
+      "problemMatcher": ["$rustc"]
+    },
+    {
+      "label": "cargo doc (all features)",
+      "type": "shell",
+      "command": "cargo",
+      "args": ["doc", "--workspace", "--all-features", "--no-deps"],
+      "problemMatcher": ["$rustc"]
+    },
+    {
+      "label": "cargo fmt --check",
+      "type": "shell",
+      "command": "cargo",
+      "args": ["fmt", "--all", "--", "--check"],
+      "problemMatcher": []
+    },
+    {
+      "label": "lint (fmt + clippy)",
+      "dependsOn": ["cargo fmt --check", "cargo clippy (all warnings)"],
+      "problemMatcher": []
+    },
+    {
+      "label": "dist (build release)",
+      "type": "shell",
+      "command": "cargo",
+      "args": ["build", "--workspace", "--release"],
+      "problemMatcher": ["$rustc"],
+      "detail": "Build all release artifacts"
+    },
+    {
+      "label": "generate docs site",
+      "type": "shell",
+      "command": "python",
+      "args": ["ci/generate-docs.py"],
+      "problemMatcher": []
+    },
+    {
+      "label": "sccache stats",
+      "type": "shell",
+      "command": "sccache",
+      "args": ["--show-stats"],
+      "problemMatcher": [],
+      "detail": "Display current sccache statistics"
+    },
+    {
+      "label": "sccache reset stats",
+      "type": "shell",
+      "command": "sccache",
+      "args": ["--zero-stats"],
+      "problemMatcher": [],
+      "detail": "Reset sccache statistics counters"
+    }
+  ]
+}

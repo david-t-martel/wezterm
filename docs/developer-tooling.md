@@ -35,6 +35,25 @@ sccache --show-stats
 
 Common gotcha: some installation flows (like single `cargo install` under a wrapper) may fail if the wrapper disallows incremental internals; disabling the wrapper for that command resolves it.
 
+### Convenience Commands (Justfile & VS Code Tasks)
+
+A `Justfile` provides shortcuts:
+
+| Just Target | Action |
+|-------------|--------|
+| `just build` | Workspace debug build |
+| `just release` | Workspace release build |
+| `just lint` | Format + clippy (cached) |
+| `just test` | Run workspace tests (cached) |
+| `just sccache-stats` | Show cache stats |
+| `just sccache-zero` | Reset cache counters |
+| `just full-verify` | fmt + clippy + tests + docs + sccache stats |
+
+VS Code tasks added:
+- List is separate for lint satisfaction.
+- `sccache stats`
+- `sccache reset stats`
+
 ## Git Pre-Commit Hooks
 
 We use the [`pre-commit`](https://pre-commit.com/) framework for local hook orchestration. It runs fast, incremental checks before you create a commit.
