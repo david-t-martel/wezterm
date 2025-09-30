@@ -1,0 +1,46 @@
+# Doxygen configuration for generating supplemental architecture/API docs for WezTerm
+# This is experimental; rustdoc remains the authoritative source for end-user Rust API docs.
+
+PROJECT_NAME           = "WezTerm (Rust Workspace)"
+PROJECT_NUMBER         = "${WEZTERM_VERSION}"
+OUTPUT_DIRECTORY       = docs/doxygen
+GENERATE_HTML          = YES
+GENERATE_XML           = YES
+GENERATE_LATEX         = NO
+RECURSIVE              = YES
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_STATIC         = NO
+EXTRACT_LOCAL_METHODS  = YES
+EXTRACT_ANON_NSPACES   = YES
+FULL_PATH_NAMES        = NO
+STRIP_FROM_PATH        = .
+INPUT                  = wezterm wezterm-gui wezterm-mux-server wezterm-client term mux pty
+FILE_PATTERNS          = *.rs
+# Optionally include generated rustdoc JSON for cross-linking (cargo +nightly doc --workspace --all-features --no-deps --document-private-items -Z unstable-options --output-format json)
+# Add the path(s) to that JSON below if produced in CI:
+# INPUT += target/rustdoc-json
+
+# Treat Rust files via filter to make them more C++ like for Doxygen parsing if available
+FILTER_SOURCE_FILES    = YES
+FILTER_PATTERNS        = *.rs=ci/doxygen-rust-filter.sh
+
+QUIET                  = YES
+WARN_IF_UNDOCUMENTED   = NO
+WARN_IF_DOC_ERROR      = YES
+WARN_AS_ERROR          = NO
+GENERATE_TREEVIEW      = YES
+SOURCE_BROWSER         = NO
+REFERENCES_RELATION    = YES
+REFERENCED_BY_RELATION = YES
+DOT_IMAGE_FORMAT       = svg
+HAVE_DOT               = YES
+CALL_GRAPH             = NO
+CALLER_GRAPH           = NO
+CLASS_DIAGRAMS         = YES
+MULTILINE_CPP_IS_BRIEF = YES
+JAVADOC_AUTOBRIEF      = YES
+INLINE_SOURCES         = NO
+GENERATE_TAGFILE       = docs/doxygen/wezterm.tag
+HTML_OUTPUT            = html
+ALIASES                = "rustnote=\par Rust Note:"

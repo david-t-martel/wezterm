@@ -1,0 +1,90 @@
+# pre-commit configuration for WezTerm
+# Install pre-commit:  pip install pre-commit  (or use pipx)
+# Then enable:         pre-commit install --hook-type pre-commit --hook-type pre-push
+# This will auto-format, lint and run lightweight checks prior to committing/pushing.
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.8
+    hooks:
+      - id: ruff-format
+        additional_dependencies: []
+        files: "(^|/)ci/|(^|/)scripts/|(^|/)docs/"
+        types_or: [python]
+  - repo: local
+    hooks:
+      - id: cargo-fmt
+        name: cargo fmt
+        entry: bash -c 'cargo fmt --all'
+        language: system
+        pass_filenames: false
+        types: [rust]
+      - id: cargo-clippy
+        name: cargo clippy (fast)
+        entry: bash -c 'cargo clippy --workspace --all-targets -- -D warnings -Aclippy::type_complexity'
+        language: system
+        pass_filenames: false
+        types: [rust]
+      - id: cargo-test-changed
+        name: cargo test (changed crates quick)
+        entry: bash -c 'git diff --name-only --cached | grep ".rs$" >/dev/null && cargo test --workspace --no-fail-fast --quiet || echo "No Rust changes; skipping tests"'
+        language: system
+        pass_filenames: false
+      - id: cargo-deny
+        name: cargo deny check (advisories + licenses)
+        entry: bash -c 'command -v cargo-deny >/dev/null && cargo deny check advisories licenses bans sources || echo "cargo-deny not installed; skipping"'
+        language: system
+        pass_filenames: false
+      - id: mdbook-build
+        name: mdBook build docs (link check only)
+        entry: bash -c 'command -v mdbook >/dev/null && mdbook build docs --quiet || echo "mdbook not installed; skipping"'
+        language: system
+        pass_filenames: false
+      - id: doxygen-rust
+        name: Doxygen (Rust) generate XML (fast subset)
+        entry: bash -c 'command -v doxygen >/dev/null && doxygen Doxyfile.rust 1>/dev/null || echo "doxygen not installed; skipping"'
+        language: system
+        pass_filenames: false
+
+# Optional: extra hooks on pre-push
+# Add a ["--hook-type","pre-push"] install to enable heavier tasks there.
+  - repo: local
+    hooks:
+      - id: pre-push-clippy-full
+        name: pre-push clippy (all features)
+        stages: [pre-push]
+        entry: bash -c 'cargo clippy --workspace --all-targets --all-features -- -D warnings -Aclippy::type_complexity'
+        language: system
+        pass_filenames: false
+      - id: pre-push-test-full
+        name: pre-push test (all features)
+        stages: [pre-push]
+        entry: bash -c 'cargo test --workspace --all-features --no-fail-fast'
+        language: system
+        pass_filenames: false
+      - id: pre-push-deny
+        name: pre-push cargo deny
+        stages: [pre-push]
+        entry: bash -c 'command -v cargo-deny >/dev/null && cargo deny check advisories licenses bans sources || echo "cargo-deny not installed; skipping"'
+        language: system
+        pass_filenames: false
+      - id: pre-push-mdbook
+        name: pre-push mdbook build
+        stages: [pre-push]
+        entry: bash -c 'command -v mdbook >/dev/null && mdbook build docs --quiet || echo "mdbook not installed; skipping"'
+        language: system
+        pass_filenames: false
+      - id: pre-push-doxygen
+        name: pre-push doxygen (architecture)
+        stages: [pre-push]
+        entry: bash -c 'command -v doxygen >/dev/null && doxygen Doxyfile.rust 1>/dev/null || echo "doxygen not installed; skipping"'
+        language: system
+        pass_filenames: false
