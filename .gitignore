@@ -19,10 +19,6 @@ dhat-heap.json
 /termwiz/codegen/Cargo.lock
 /gh_pages/
 /.cache/
-/docs/releases.json
-/docs/SUMMARY.md
-/docs/cli/cli/index.md
-/docs/recipes/index.md
 /docs/colorschemes/**/index.md
 /docs/colorschemes/scheme.css
 /docs/colorschemes/scheme.js
@@ -66,3 +62,8 @@ dhat-heap.json
 /__pycache__/
 /nix/result
 /docs/doxygen/
+
+# Allow GitHub workflows and metadata to be versioned (override any parent ignores)
+!/.github/
+!/.github/workflows/
+!/.github/workflows/*.yml
