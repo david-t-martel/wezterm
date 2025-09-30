@@ -15,7 +15,7 @@ members = [
   "wezterm-open-url",
   "wezterm-ssh",
   "wezterm-surface",
-  "wezterm-uds",
+  "wezterm-uds", "wezterm-watch",
 ]
 resolver = "2"
 exclude = [
@@ -31,6 +31,7 @@ opt-level = 3
 # https://jakedeichert.com/blog/reducing-rust-incremental-compilation-times-on-macos-by-70-percent/
 # Disabled because it breaks builds on Windows
 #split-debuginfo = "unpacked"
+incremental = false  # Use sccache instead of incremental state for cleaner caching
 
 [workspace.dependencies]
 ahash = "0.8"

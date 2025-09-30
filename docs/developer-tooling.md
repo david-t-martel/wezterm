@@ -16,6 +16,25 @@ We aim to keep `main` in a consistently buildable, lint-clean state. The tooling
 | Docs (User Guide) | `mdBook` | `mdbook build docs` |
 | Supplemental Architecture Docs | `doxygen` | `doxygen Doxyfile.rust` |
 
+### Build Caching (sccache)
+
+We use `sccache` as a compiler cache on developer machines and in tooling hooks to accelerate rebuilds across feature branches.
+
+Key points:
+
+- Incremental compilation is disabled (`incremental = false` in `[profile.dev]`) so object outputs are deterministic and cacheable.
+- `.cargo/config.toml` sets `rustc-wrapper = "sccache"` and defines a cache directory & size (`SCCACHE_CACHE_SIZE=15G`).
+- Pre-commit and pre-push hooks export `RUSTC_WRAPPER=sccache` to ensure cached compilation during lint/tests.
+- If a one-off build misbehaves under sccache, temporarily unset with `set RUSTC_WRAPPER=` (Windows PowerShell: `$env:RUSTC_WRAPPER=''`).
+
+Inspect cache stats:
+
+```bash
+sccache --show-stats
+```
+
+Common gotcha: some installation flows (like single `cargo install` under a wrapper) may fail if the wrapper disallows incremental internals; disabling the wrapper for that command resolves it.
+
 ## Git Pre-Commit Hooks
 
 We use the [`pre-commit`](https://pre-commit.com/) framework for local hook orchestration. It runs fast, incremental checks before you create a commit.
@@ -26,6 +45,7 @@ We use the [`pre-commit`](https://pre-commit.com/) framework for local hook orch
 pip install pre-commit  # or: pipx install pre-commit
 pre-commit install --hook-type pre-commit --hook-type pre-push
 ```
+
 This installs both the default `pre-commit` hook and (optionally) a `pre-push` hook if extended later.
 
 ### What Runs
@@ -56,6 +76,7 @@ Rust already has excellent `rustdoc`, but we provide an experimental `Doxyfile.r
 ```bash
 doxygen Doxyfile.rust
 ```
+
 Outputs to `docs/doxygen`. If you also generate `rustdoc` JSON (nightly), add paths to that JSON in `Doxyfile.rust` to improve linkability.
 
 ### Filter Script
@@ -80,7 +101,6 @@ return {
   enable_tab_bar = true,
 }
 ```
-
 
 ### Advanced Patterns
 
@@ -121,8 +141,6 @@ end
 return config
 ```
 
-
-
 ### Multiplexing Integration
 
 Configure startup workspace:
@@ -149,8 +167,8 @@ return {
   },
 }
 ```
-Further examples: `docs/config/keys.md`.
 
+Further examples: `docs/config/keys.md`.
 
 ### Color Schemes
 
@@ -169,7 +187,6 @@ When adding new config keys, update relevant pages under `docs/config/` and refe
 ```bash
 mdbook build docs
 ```
-
 
 ## CI Considerations
 

@@ -7,3 +7,11 @@ ar = "x86_64-w64-mingw32-gcc-ar"
 # enabled for the target, so let's turn that on here.
 [target.x86_64-pc-windows-msvc]
 rustflags = ["-C", "target-feature=+crt-static"]
+sccache = true
+
+[build]
+rustc-wrapper = "sccache"
+
+[env]
+SCCACHE_CACHE_SIZE = "15G"
+SCCACHE_DIR = "${CARGO_HOME}/../sccache-cache"

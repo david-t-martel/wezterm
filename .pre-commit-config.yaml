@@ -29,13 +29,13 @@ repos:
         types: [rust]
       - id: cargo-clippy
         name: cargo clippy (fast)
-        entry: bash -c 'cargo clippy --workspace --all-targets -- -D warnings -Aclippy::type_complexity'
+        entry: bash -c 'export RUSTC_WRAPPER=sccache; cargo clippy --workspace --all-targets -- -D warnings -Aclippy::type_complexity'
         language: system
         pass_filenames: false
         types: [rust]
       - id: cargo-test-changed
         name: cargo test (changed crates quick)
-        entry: bash -c 'git diff --name-only --cached | grep ".rs$" >/dev/null && cargo test --workspace --no-fail-fast --quiet || echo "No Rust changes; skipping tests"'
+        entry: bash -c 'export RUSTC_WRAPPER=sccache; git diff --name-only --cached | grep ".rs$" >/dev/null && cargo test --workspace --no-fail-fast --quiet || echo "No Rust changes; skipping tests"'
         language: system
         pass_filenames: false
       - id: cargo-deny
@@ -61,13 +61,13 @@ repos:
       - id: pre-push-clippy-full
         name: pre-push clippy (all features)
         stages: [pre-push]
-        entry: bash -c 'cargo clippy --workspace --all-targets --all-features -- -D warnings -Aclippy::type_complexity'
+        entry: bash -c 'export RUSTC_WRAPPER=sccache; cargo clippy --workspace --all-targets --all-features -- -D warnings -Aclippy::type_complexity'
         language: system
         pass_filenames: false
       - id: pre-push-test-full
         name: pre-push test (all features)
         stages: [pre-push]
-        entry: bash -c 'cargo test --workspace --all-features --no-fail-fast'
+        entry: bash -c 'export RUSTC_WRAPPER=sccache; cargo test --workspace --all-features --no-fail-fast'
         language: system
         pass_filenames: false
       - id: pre-push-deny
