@@ -29,7 +29,7 @@ repos:
         types: [rust]
       - id: cargo-clippy
         name: cargo clippy (fast)
-        entry: bash -c 'export RUSTC_WRAPPER=sccache; cargo clippy --workspace --all-targets -- -D warnings -Aclippy::type_complexity'
+        entry: bash -c 'export RUSTC_WRAPPER=sccache; cargo clippy --workspace --all-targets -- -D warnings -A clippy::type_complexity'
         language: system
         pass_filenames: false
         types: [rust]
@@ -61,7 +61,7 @@ repos:
       - id: pre-push-clippy-full
         name: pre-push clippy (all features)
         stages: [pre-push]
-        entry: bash -c 'export RUSTC_WRAPPER=sccache; cargo clippy --workspace --all-targets --all-features -- -D warnings -Aclippy::type_complexity'
+        entry: bash -c 'export RUSTC_WRAPPER=sccache; cargo clippy --workspace --all-targets --all-features -- -D warnings -A clippy::type_complexity'
         language: system
         pass_filenames: false
       - id: pre-push-test-full

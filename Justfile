@@ -5,16 +5,21 @@ set shell := ["powershell", "-NoLogo", "-Command"]
 default: build
 
 build:
-    cargo build --workspace
+    $env:RUSTC_WRAPPER="sccache"; cargo build --workspace
 
 release:
-    cargo build --workspace --release
+    $env:RUSTC_WRAPPER="sccache"; cargo build --workspace --release
 
 fmt:
     cargo fmt --all
 
 clippy:
-    $env:RUSTC_WRAPPER="sccache"; cargo clippy --workspace --all-targets -- -D warnings -Aclippy::type_complexity
+    # Run clippy without sccache (wrapper causes -vV probe failure in current environment)
+    Remove-Item Env:RUSTC_WRAPPER -ErrorAction SilentlyContinue; cargo clippy --workspace --all-targets -- -D warnings -A clippy::type_complexity
+
+clippy-cache:
+    # Attempt clippy with sccache (may fail). Use for experimentation.
+    $env:RUSTC_WRAPPER="sccache"; cargo clippy --workspace --all-targets -- -D warnings -A clippy::type_complexity
 
 test:
     $env:RUSTC_WRAPPER="sccache"; cargo test --workspace --no-fail-fast

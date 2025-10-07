@@ -10,6 +10,20 @@ WezTerm is a GPU-accelerated cross-platform terminal emulator and multiplexer wr
 
 ### Building the Project
 
+**Windows (PowerShell)**:
+```powershell
+# Build using Just (recommended - includes sccache)
+just build              # Standard build with sccache
+just release            # Release build with optimizations
+just clippy            # Run clippy linter (without sccache due to probe issues)
+just test              # Run tests with sccache
+just full-verify       # Full quality check (fmt, clippy, test, docs, sccache stats)
+
+# Build all custom utilities (wezterm-fs-explorer, wezterm-watch)
+.\build-all.ps1        # Builds and installs to $env:USERPROFILE\.local\bin
+```
+
+**Unix/Linux/macOS (Make)**:
 ```bash
 # Build all main binaries (wezterm, wezterm-gui, wezterm-mux-server, strip-ansi-escapes)
 make build
@@ -44,13 +58,19 @@ cargo test --all
 ### Code Formatting and Linting
 
 ```bash
-# Format all code (requires nightly Rust)
-make fmt
-# Or directly:
-cargo +nightly fmt
+# Format all code (Windows: use Just)
+just fmt               # PowerShell/Windows
+make fmt               # Unix/Linux/macOS
+cargo fmt --all        # Direct cargo (any platform)
 
 # Check formatting without applying changes
-cargo +nightly fmt -- --check
+cargo fmt --all --check
+
+# Run clippy (Windows: Just handles sccache wrapper issues)
+just clippy            # Windows (disables RUSTC_WRAPPER automatically)
+cargo clippy --workspace --all-targets -- -D warnings -A clippy::type_complexity
+
+# Note: clippy.toml allows clippy::type_complexity warnings
 ```
 
 ### Documentation
@@ -88,7 +108,21 @@ gdb ./target/debug/wezterm
 
 ### Workspace Structure
 
-This is a Cargo workspace with 19+ member crates organized by functionality:
+This is a Cargo workspace with 19+ member crates organized by functionality.
+
+**Shared Target Directory** (`.cargo/config.toml`):
+- Windows: `C:\Users\david\.cargo\shared-target\`
+- Binaries: `shared-target\release\*.exe` or `shared-target\debug\*.exe`
+- Benefits: Shared compilation artifacts across builds, reduced disk usage
+- Note: Can be overridden by project-specific `./target/` if config not present
+
+**Key Configuration**:
+```toml
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]  # Static OpenSSL on Windows
+```
+
+**Workspace Members** (organized by functionality):
 
 **Core Terminal Engine** (platform-agnostic):
 - `term/` - Core terminal emulator implementation
@@ -141,6 +175,14 @@ This is a Cargo workspace with 19+ member crates organized by functionality:
 - The `k9` assertion library is used for expressive test assertions
 - Tests should include comments explaining their intent
 
+**Test Runners**:
+- **nextest** (preferred): `cargo nextest run` or `just test-nextest`
+- **cargo test**: `cargo test --all` or `just test`
+
+**Pre-commit Testing**:
+- Quick tests run on changed crates only during pre-commit
+- Full test suite with all features runs during pre-push
+
 ### CI/CD Pipeline
 
 The project has extensive CI coverage with 40+ GitHub Actions workflows testing on:
@@ -150,3 +192,122 @@ The project has extensive CI coverage with 40+ GitHub Actions workflows testing 
 - Various architecture combinations
 
 Key workflows check formatting, run tests, and build packages for distribution.
+
+**Pre-commit Hooks**: Configured via `.pre-commit-config.yaml`
+- Install: `pre-commit install --hook-type pre-commit --hook-type pre-push`
+- Pre-commit: Fast checks (fmt, clippy, quick tests, deny check, mdbook, doxygen)
+- Pre-push: Full checks (clippy --all-features, test --all-features, full deny, mdbook, doxygen)
+
+**Local CI Workflow**: Run full local validation
+```bash
+just full-local-ci     # Comprehensive validation (fmt, clippy, nextest, docs, arch docs)
+```
+
+### Build Optimization with sccache
+
+The project uses `sccache` for accelerated builds via shared compilation cache:
+
+**Configuration** (`.cargo/config.toml`):
+```toml
+[env]
+SCCACHE_CACHE_SIZE = "15G"
+SCCACHE_DIR = "${CARGO_HOME}/../sccache-cache"
+```
+
+**Usage**:
+```powershell
+# Windows (via Justfile - automatically sets RUSTC_WRAPPER)
+just build             # Uses sccache
+just sccache-stats     # Show cache statistics
+just sccache-zero      # Reset statistics
+
+# Note: Clippy requires sccache disabled due to -vV probe failure
+just clippy            # Automatically removes RUSTC_WRAPPER
+```
+
+**Manual sccache**:
+```bash
+# Set wrapper manually
+export RUSTC_WRAPPER=sccache  # Unix
+$env:RUSTC_WRAPPER="sccache"  # PowerShell
+
+# Build with sccache
+cargo build
+
+# Check statistics
+sccache --show-stats
+```
+
+### Custom WezTerm Utilities
+
+This repository includes custom Rust utilities built alongside WezTerm:
+
+**wezterm-fs-explorer**: High-performance filesystem explorer
+- Location: `wezterm-fs-explorer/`
+- Features: Vim keybindings, git integration, Nerd Font icons, IPC support
+- Build: `cd wezterm-fs-explorer && cargo build --release`
+- Docs: See `wezterm-fs-explorer/README.md`
+
+**wezterm-watch**: File watcher with git integration
+- Location: `wezterm-watch/`
+- Features: Real-time monitoring, git status, multiple output formats
+- Build: `cd wezterm-watch && cargo build --release`
+- Docs: See `wezterm-watch/README.md`
+
+**Build All Utilities** (Windows):
+```powershell
+.\build-all.ps1                # Builds and installs both utilities
+.\build-all.ps1 -Force         # Force rebuild
+.\build-all.ps1 -SkipTests     # Skip verification tests
+```
+
+Binaries install to: `$env:USERPROFILE\.local\bin\` (added to PATH automatically)
+
+## Planned Features & Design Documents
+
+**AI Assistant Module** (`WEZTERM_AI_MODULE_DESIGN.md`):
+- Comprehensive design for integrating local LLM-based AI assistant into WezTerm
+- Module framework architecture with capability-based permissions
+- LLM integration layer (mistral.rs, gemma.cpp)
+- Filesystem and Commander utilities with MCP protocol
+- RAG system integration for context-aware assistance
+- Performance optimizations (<700MB memory with AI active)
+- See full specification: `WEZTERM_AI_MODULE_DESIGN.md`
+
+**Implementation Status**: Design specification complete, implementation pending
+
+## Important Development Notes
+
+### Windows-Specific Considerations
+
+1. **Justfile vs Makefile**:
+   - Windows: Use `just` commands (PowerShell-based)
+   - Unix/Linux/macOS: Use `make` commands (Bash-based)
+
+2. **sccache Compatibility**:
+   - Works with cargo build/test
+   - **Does NOT work** with clippy (use `just clippy` which removes wrapper)
+   - Check cache: `just sccache-stats`
+
+3. **Shared Target Directory**:
+   - Reduces build times and disk usage
+   - Configured in `.cargo/config.toml`
+   - All workspace members share compilation artifacts
+
+4. **Static Linking**:
+   - OpenSSL statically linked on Windows (`crt-static` feature)
+   - Required for portable binaries
+
+### Cross-Platform Development
+
+- WezTerm core is cross-platform (Windows, macOS, Linux, BSDs)
+- Custom utilities (fs-explorer, watch) are also cross-platform
+- Window management abstracted via `window/` crate
+- PTY operations abstracted via `pty/` crate
+
+### Lua Configuration
+
+- Configuration hot-reloading supported
+- Extensive Lua API via 13+ `lua-api-crates/` modules
+- Custom utilities can integrate via Lua callbacks
+- See examples in custom utility README files

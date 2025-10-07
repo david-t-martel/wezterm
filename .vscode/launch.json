@@ -1,0 +1,64 @@
+{
+  // Debug configurations for core WezTerm binaries.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug wezterm-gui (cargo run)",
+      "type": "lldb",
+      "request": "launch",
+      "cargo": {
+        "args": ["run", "--bin", "wezterm-gui"],
+        "filter": {"name": "wezterm-gui", "kind": "bin"}
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "RUST_LOG": "info"
+      },
+      "sourceLanguages": ["rust"],
+      "preLaunchTask": "cargo build (dev)"
+    },
+    {
+      "name": "Debug wezterm (CLI)",
+      "type": "lldb",
+      "request": "launch",
+      "cargo": {
+        "args": ["run", "--bin", "wezterm"],
+        "filter": {"name": "wezterm", "kind": "bin"}
+      },
+      "args": ["--help"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "RUST_LOG": "info"
+      },
+      "sourceLanguages": ["rust"],
+      "preLaunchTask": "cargo build (dev)"
+    },
+    {
+      "name": "Debug mux-server",
+      "type": "lldb",
+      "request": "launch",
+      "cargo": {
+        "args": ["run", "--bin", "wezterm-mux-server"],
+        "filter": {"name": "wezterm-mux-server", "kind": "bin"}
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "env": {"RUST_LOG": "debug"},
+      "sourceLanguages": ["rust"],
+      "preLaunchTask": "cargo build (dev)"
+    },
+    {
+      "name": "Debug tests (single file)",
+      "type": "lldb",
+      "request": "launch",
+      "cargo": {
+        "args": ["test", "--", "--nocapture"],
+        "filter": {"kind": "test"}
+      },
+      "cwd": "${workspaceFolder}",
+      "env": {"RUST_LOG": "info"},
+      "sourceLanguages": ["rust"]
+    }
+  ]
+}

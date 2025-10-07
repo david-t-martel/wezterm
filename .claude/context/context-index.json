@@ -1,0 +1,53 @@
+{
+  "contexts": [
+    {
+      "id": "wezterm-2025-01-30",
+      "project": "WezTerm Terminal Emulator",
+      "repository": "github.com/david-t-martel/wezterm",
+      "timestamp": "2025-01-30",
+      "file": "wezterm-context-2025-01-30.md",
+      "summary": "Initial setup of WezTerm fork with CLAUDE.md creation and comprehensive codebase analysis",
+      "key_achievements": [
+        "Repository forked to github.com/david-t-martel/wezterm",
+        "Created comprehensive CLAUDE.md documentation",
+        "Git configuration updated with proper author details",
+        "Full codebase structure analyzed and documented",
+        "19+ workspace crates mapped with purposes"
+      ],
+      "active_work": [
+        "CLAUDE.md development guide completed",
+        "Repository fork established and configured"
+      ],
+      "next_steps": [
+        "Potential feature development",
+        "Performance optimization opportunities",
+        "Platform support enhancements"
+      ],
+      "technologies": [
+        "Rust",
+        "wgpu (GPU acceleration)",
+        "Lua (configuration)",
+        "cargo nextest",
+        "mkdocs"
+      ],
+      "quick_restore": {
+        "working_directory": "C:\\Users\\david\\wezterm",
+        "branch": "main",
+        "build_command": "make build",
+        "test_command": "make test",
+        "key_files": [
+          "CLAUDE.md",
+          "Cargo.toml",
+          "term/src/lib.rs",
+          "wezterm-gui/src/main.rs"
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "last_updated": "2025-01-30",
+    "format": "context-index",
+    "purpose": "Quick lookup and restoration of project contexts"
+  }
+}

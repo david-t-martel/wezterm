@@ -1,0 +1,106 @@
+// VS Code workspace settings for the WezTerm Rust monorepo
+// This file was cleaned up and augmented for performance, clarity and consistency.
+{
+    // --- Rust Analyzer ---
+    "rust-analyzer.linkedProjects": ["./Cargo.toml"],
+    "rust-analyzer.cargo.features": "all", // Use all features so IDE sees complete API surface
+    "rust-analyzer.cargo.buildScripts.enable": true,
+    "rust-analyzer.cargo.reloadOutDirsFromCheck": true,
+    // Faster large-workspace handling: avoid indexing target dir and git metadata
+        "rust-analyzer.files.exclude": [
+            "**/.git",
+            "**/target"
+        ],
+    // Linting on save with clippy; keep type_complexity allowed to reduce noise
+    "rust-analyzer.checkOnSave.command": "clippy",
+    "rust-analyzer.checkOnSave.extraArgs": [
+        "--",
+        "-Dwarnings",
+        "-Aclippy::type_complexity"
+    ],
+    "rust-analyzer.procMacro.enable": true,
+    "rust-analyzer.completion.callable.snippets": "add_parentheses",
+    "rust-analyzer.assist.importGranularity": "module",
+    "rust-analyzer.assist.importPrefix": "by_self",
+    "rust-analyzer.diagnostics.enable": true,
+    "rust-analyzer.diagnostics.disabled": [
+        "unresolved-proc-macro"
+        // "unresolved-macro-call" // Uncomment if generated code causes false positives
+    ],
+    "rust-analyzer.inlayHints.enable": true,
+    "rust-analyzer.inlayHints.typeHints.enable": true,
+    "rust-analyzer.inlayHints.parameterHints.enable": true,
+    "rust-analyzer.inlayHints.chainingHints.enable": true,
+    "rust-analyzer.inlayHints.closureCaptureHints.enable": true,
+        // Show enum discriminant hints for fieldless enums only to reduce noise
+        "rust-analyzer.inlayHints.discriminantHints.enable": "fieldless",
+    "rust-analyzer.inlayHints.bindingModeHints.enable": false,
+    "rust-analyzer.hover.actions.enable": true,
+    "rust-analyzer.hover.actions.links.enable": true,
+    "rust-analyzer.lens.enable": true,
+    "rust-analyzer.lens.run.enable": true,
+    "rust-analyzer.lens.debug.enable": true,
+    "rust-analyzer.testExplorer.enable": true,
+    "rust-analyzer.testExplorer.runnable.enable": true,
+    "rust-analyzer.testExplorer.debuggable.enable": true,
+    "rust-analyzer.workspace.symbol.search.kind": "all_symbols",
+    "rust-analyzer.workspace.symbol.search.limit": 200,
+
+    // --- Editor ergonomics ---
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit",
+        "source.fixAll": "explicit"
+    },
+    "editor.tabSize": 4,
+    "editor.rulers": [100, 120],
+    "editor.minimap.enabled": true,
+    "editor.minimap.maxColumn": 120,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.associations": {
+        "*.ron": "ron",
+        "*.wgsl": "wgsl"
+    },
+    "search.exclude": {
+        "**/target": true
+    },
+    "files.watcherExclude": {
+        "**/target/**": true
+    },
+
+    // --- Terminal profiles ---
+    "terminal.integrated.fontSize": 14,
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "terminal.integrated.profiles.windows": {
+        "PowerShell": { "source": "PowerShell", "icon": "terminal-powershell" },
+        "Command Prompt": { "path": ["${env:windir}\\System32\\cmd.exe"], "icon": "terminal-cmd" },
+        "Git Bash": { "source": "Git Bash" }
+    },
+    "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+            "bash": { "path": "bash", "icon": "terminal-bash" },
+            "zsh": { "path": "zsh", "icon": "terminal" },
+            "fish": { "path": "fish", "icon": "terminal" }
+        },
+    "terminal.integrated.defaultProfile.osx": "zsh",
+        "terminal.integrated.profiles.osx": {
+            "bash": { "path": "bash", "icon": "terminal-bash" },
+            "zsh": { "path": "zsh", "icon": "terminal" },
+            "fish": { "path": "fish", "icon": "terminal" }
+        },
+
+    // --- UI/Theme ---
+    "workbench.colorTheme": "Default Dark Modern",
+        // Use built-in icon theme for portability (avoid dependency on external pack)
+        "workbench.iconTheme": "vs-seti",
+    "window.zoomLevel": 0,
+    "editor.codeActions.triggerOnFocusChange": false,
+    "files.autoSave": "afterDelay",
+    "editor.defaultFormatter": "rust-lang.rust-analyzer",
+    "editor.wordWrap": "wordWrapColumn",
+    "editor.formatOnPaste": true,
+    "editor.autoIndentOnPaste": true,
+    "editor.experimentalGpuAcceleration": "on"
+}

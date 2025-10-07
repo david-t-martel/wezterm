@@ -1,0 +1,17 @@
+{
+  "recommendations": [
+    "rust-lang.rust-analyzer",
+    "tamasfe.even-better-toml",
+    "serayuzgur.crates",
+    "vadimcn.vscode-lldb",
+    "mutantdino.resourcemonitor",
+    "aaron-bond.better-comments",
+    "gruntfuggly.todo-tree",
+    "eamodio.gitlens",
+    "streetsidesoftware.code-spell-checker"
+  ],
+  "unwantedRecommendations": [
+    // We rely on rust-analyzer only
+    "rust-lang.rust"
+  ]
+}
