@@ -98,6 +98,9 @@ impl<'a> FieldInfo<'a> {
         }
     }
 
+    // This method generates TokenStream code to deserialize FROM dynamic data
+    // It's not a constructor, so clippy's wrong_self_convention warning is a false positive
+    #[allow(clippy::wrong_self_convention)]
     pub fn from_dynamic(&self, struct_name: &str) -> TokenStream {
         let name = &self.name;
         let ident = &self.field.ident;

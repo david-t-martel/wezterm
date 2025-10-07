@@ -52,7 +52,7 @@ pub struct JsonRpcError {
 
 pub struct IpcClient {
     pipe_path: String,
-    sender: mpsc::UnboundedSender<IpcMessage>,
+    _sender: mpsc::UnboundedSender<IpcMessage>,
     receiver: mpsc::UnboundedReceiver<IpcMessage>,
     next_id: u64,
     connected: bool,
@@ -63,7 +63,7 @@ impl IpcClient {
         let (sender, receiver) = mpsc::unbounded_channel();
         Self {
             pipe_path,
-            sender,
+            _sender: sender,
             receiver,
             next_id: 1,
             connected: false,
@@ -281,10 +281,7 @@ impl IpcClient {
     }
 
     pub fn try_recv(&mut self) -> Option<IpcMessage> {
-        match self.receiver.try_recv() {
-            Ok(msg) => Some(msg),
-            Err(_) => None,
-        }
+        self.receiver.try_recv().ok()
     }
 }
 

@@ -18,7 +18,7 @@ use crossterm::{
 };
 use ipc_client::IpcClient;
 use ratatui::{backend::CrosstermBackend, Terminal};
-use std::{env, io, path::PathBuf, time::Duration};
+use std::{env, io, path::{Path, PathBuf}, time::Duration};
 
 #[derive(Parser, Debug)]
 #[command(name = "wezterm-fs-explorer")]
@@ -92,8 +92,8 @@ async fn main() -> Result<()> {
 }
 
 async fn run_interactive_mode(
-    start_dir: &PathBuf,
-    ipc_client: Option<&mut IpcClient>,
+    start_dir: &Path,
+    mut ipc_client: Option<&mut IpcClient>,
 ) -> Result<Vec<PathBuf>> {
     // Setup terminal
     enable_raw_mode()?;
@@ -103,18 +103,18 @@ async fn run_interactive_mode(
     let mut terminal = Terminal::new(backend)?;
 
     // Create app
-    let mut app = App::new(start_dir.clone())?;
+    let mut app = App::new(start_dir.to_path_buf())?;
 
     // Start IPC event listener if client exists
-    if let Some(client) = ipc_client {
+    if let Some(client) = ipc_client.as_mut() {
         if client.is_connected() {
-            let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
+            let (tx, _rx) = tokio::sync::mpsc::unbounded_channel();
             client.start_event_listener(tx).await?;
 
             // Send initial watch directory message
             client
                 .send_message(ipc_client::IpcMessage::WatchDirectory {
-                    path: start_dir.clone(),
+                    path: start_dir.to_path_buf(),
                 })
                 .await?;
         }
@@ -138,7 +138,7 @@ async fn run_interactive_mode(
 async fn run_app<B: ratatui::backend::Backend>(
     terminal: &mut Terminal<B>,
     app: &mut App,
-    ipc_client: Option<&mut IpcClient>,
+    mut ipc_client: Option<&mut IpcClient>,
 ) -> Result<Vec<PathBuf>> {
     loop {
         terminal.draw(|f| ui::draw(f, app))?;
@@ -162,7 +162,7 @@ async fn run_app<B: ratatui::backend::Backend>(
                     (KeyCode::Enter, _) => {
                         if let Some(selected) = app.get_selected_paths() {
                             // Send open file message via IPC
-                            if let Some(client) = ipc_client {
+                            if let Some(client) = ipc_client.as_mut() {
                                 for path in &selected {
                                     if path.is_file() {
                                         client
@@ -187,7 +187,7 @@ async fn run_app<B: ratatui::backend::Backend>(
                     (KeyCode::Char('h'), _) | (KeyCode::Left, _) => {
                         app.go_parent();
                         // Notify IPC of directory change
-                        if let Some(client) = ipc_client {
+                        if let Some(client) = ipc_client.as_mut() {
                             client
                                 .send_message(ipc_client::IpcMessage::WatchDirectory {
                                     path: app.current_dir.clone(),
@@ -198,7 +198,7 @@ async fn run_app<B: ratatui::backend::Backend>(
                     (KeyCode::Char('l'), _) | (KeyCode::Right, _) => {
                         app.enter_directory()?;
                         // Notify IPC of directory change
-                        if let Some(client) = ipc_client {
+                        if let Some(client) = ipc_client.as_mut() {
                             client
                                 .send_message(ipc_client::IpcMessage::WatchDirectory {
                                     path: app.current_dir.clone(),
@@ -263,9 +263,9 @@ async fn run_app<B: ratatui::backend::Backend>(
     }
 }
 
-fn run_json_mode(start_dir: &PathBuf) -> Result<Vec<PathBuf>> {
+fn run_json_mode(start_dir: &Path) -> Result<Vec<PathBuf>> {
     // For JSON mode, just return the directory
-    Ok(vec![start_dir.clone()])
+    Ok(vec![start_dir.to_path_buf()])
 }
 
 fn handle_ipc_message(app: &mut App, msg: ipc_client::IpcMessage) -> Result<()> {

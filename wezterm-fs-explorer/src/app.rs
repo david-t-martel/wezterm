@@ -1,4 +1,3 @@
-use crate::error::ExplorerError;
 use crate::file_entry::{FileEntry, FileType};
 use crate::git_status::GitStatus;
 use crate::operations::FileOperation;

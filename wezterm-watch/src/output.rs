@@ -107,7 +107,7 @@ impl OutputFormatter {
                 git_status: git_status.map(|s| s.to_short_str().to_string()),
                 timestamp: Self::current_timestamp(),
             },
-            WatchEvent::Error(msg) => JsonOutput {
+            WatchEvent::Error(_msg) => JsonOutput {
                 event_type: "error".to_string(),
                 path: None,
                 from_path: None,

@@ -184,11 +184,10 @@ async fn main() -> Result<()> {
 mod ctrlc {
     use anyhow::Result;
     use std::sync::atomic::{AtomicBool, Ordering};
-    use std::sync::Arc;
 
     static HANDLER_SET: AtomicBool = AtomicBool::new(false);
 
-    pub fn set_handler<F>(handler: F) -> Result<()>
+    pub fn set_handler<F>(_handler: F) -> Result<()>
     where
         F: Fn() + 'static + Send,
     {
@@ -231,7 +230,7 @@ mod tests {
     #[test]
     fn test_args_parsing() {
         // Basic parsing test
-        let args = Args::parse_from(&["wezterm-watch", "."]);
+        let args = Args::parse_from(["wezterm-watch", "."]);
         assert_eq!(args.interval, 100);
         assert_eq!(args.format, "pretty");
     }

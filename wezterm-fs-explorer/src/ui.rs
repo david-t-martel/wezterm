@@ -1,11 +1,9 @@
 use crate::app::{App, AppMode, ConfirmationMode, InputMode};
 use crate::file_entry::FileType;
 use crate::icons::Icons;
-use crate::keybindings::KeyBindings;
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
-    text::{Line, Span, Text},
     widgets::{Block, Borders, List, ListItem, Paragraph, Wrap},
     Frame,
 };

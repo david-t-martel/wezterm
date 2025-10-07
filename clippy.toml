@@ -1,1 +1,1 @@
-allow = ["clippy::type_complexity"]
+type-complexity-threshold = 1000

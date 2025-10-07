@@ -1,7 +1,7 @@
-use crossterm::event::{KeyCode, KeyModifiers};
-
+#[allow(dead_code)]
 pub struct KeyBindings;
 
+#[allow(dead_code)]
 impl KeyBindings {
     pub fn get_help_text() -> Vec<(&'static str, &'static str)> {
         vec![

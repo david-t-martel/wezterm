@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use crossbeam_channel::{Receiver, Sender};
 use ignore::gitignore::{Gitignore, GitignoreBuilder};
-use notify::{Config, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
+use notify::{Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use notify_debouncer_full::{new_debouncer, DebounceEventResult, Debouncer, FileIdMap};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
@@ -11,6 +11,7 @@ pub enum WatchEvent {
     Created(PathBuf),
     Modified(PathBuf),
     Deleted(PathBuf),
+    #[allow(dead_code)] // Reserved for future rename detection
     Renamed { from: PathBuf, to: PathBuf },
     Error(String),
 }
@@ -24,6 +25,7 @@ impl WatchEvent {
         }
     }
 
+    #[cfg(test)]
     pub fn event_type(&self) -> &str {
         match self {
             WatchEvent::Created(_) => "created",
@@ -38,6 +40,7 @@ impl WatchEvent {
 pub struct FileWatcher {
     _debouncer: Debouncer<RecommendedWatcher, FileIdMap>,
     receiver: Receiver<WatchEvent>,
+    #[allow(dead_code)] // Used for filtering, stored for potential future use
     gitignore: Option<Gitignore>,
     watch_path: PathBuf,
 }
@@ -141,34 +144,10 @@ impl FileWatcher {
         }
 
         match event.kind {
-            EventKind::Create(_) => {
-                if let Some(path) = event.paths.first() {
-                    Some(WatchEvent::Created(path.clone()))
-                } else {
-                    None
-                }
-            }
-            EventKind::Modify(_) => {
-                if let Some(path) = event.paths.first() {
-                    Some(WatchEvent::Modified(path.clone()))
-                } else {
-                    None
-                }
-            }
-            EventKind::Remove(_) => {
-                if let Some(path) = event.paths.first() {
-                    Some(WatchEvent::Deleted(path.clone()))
-                } else {
-                    None
-                }
-            }
-            EventKind::Any => {
-                if let Some(path) = event.paths.first() {
-                    Some(WatchEvent::Modified(path.clone()))
-                } else {
-                    None
-                }
-            }
+            EventKind::Create(_) => event.paths.first().map(|path| WatchEvent::Created(path.clone())),
+            EventKind::Modify(_) => event.paths.first().map(|path| WatchEvent::Modified(path.clone())),
+            EventKind::Remove(_) => event.paths.first().map(|path| WatchEvent::Deleted(path.clone())),
+            EventKind::Any => event.paths.first().map(|path| WatchEvent::Modified(path.clone())),
             _ => None,
         }
     }

@@ -1,5 +1,5 @@
 use anyhow::{Context, Result};
-use git2::{Repository, Status, StatusOptions};
+use git2::{Repository, StatusOptions};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
@@ -8,6 +8,7 @@ use std::time::{Duration, Instant};
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FileStatus {
     Modified,
+    #[allow(dead_code)] // Used in tests and reserved for future use
     Added,
     Deleted,
     Renamed,
